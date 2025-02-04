@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <!-- Basic -->
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <!-- Mobile Metas -->
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+  <!-- Site Metas -->
+  <meta name="keywords" content="" />
+  <meta name="description" content="" />
+  <meta name="author" content="" />
+  <link rel="shortcut icon" href="images/favicon.png" type="">
+
+  <title>Cart - Resto</title>
+
+  <!-- Same CSS imports as index.html -->
+  <link rel="stylesheet" type="text/css" href="css/bootstrap.css" />
+  <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/assets/owl.carousel.min.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-nice-select/1.1.0/css/nice-select.min.css" />
+  <link href="css/font-awesome.min.css" rel="stylesheet" />
+  <link href="css/style.css" rel="stylesheet" />
+  <link href="css/responsive.css" rel="stylesheet" />
+
+  <style>
+    body {
+      background-color: #0c0c0c;
+      color: #ffffff;
+    }
+    
+    .cart-container {
+      padding: 80px 0;
+    }
+
+    .cart-table {
+      background-color: #1a1a1a;
+      border-radius: 15px;
+      padding: 20px;
+    }
+
+    .cart-table th {
+      color: #ffbe33;
+      border-bottom: 1px solid #333;
+    }
+
+    .cart-table td {
+      color: #ffffff;
+      border-bottom: 1px solid #333;
+      vertical-align: middle;
+    }
+
+    .cart-img {
+      width: 80px;
+      height: 80px;
+      object-fit: cover;
+      border-radius: 8px;
+    }
+
+    .quantity-input {
+      width: 60px;
+      background-color: #333;
+      border: none;
+      color: white;
+      padding: 5px;
+      text-align: center;
+      border-radius: 5px;
+    }
+
+    .remove-btn {
+      color: #ff4444;
+      cursor: pointer;
+    }
+
+    .cart-summary {
+      background-color: #1a1a1a;
+      border-radius: 15px;
+      padding: 20px;
+      margin-top: 20px;
+    }
+
+    .checkout-btn {
+      background-color: #ffbe33;
+      color: #000000;
+      padding: 10px 30px;
+      border: none;
+      border-radius: 25px;
+      font-weight: bold;
+      margin-top: 20px;
+      transition: all 0.3s;
+    }
+
+    .checkout-btn:hover {
+      background-color: #e69c00;
+      color: #000000;
+    }
+  </style>
+</head>
+
+<body>
+  <!-- Header section (same as index.html) -->
+  <header class="header_section">
+    <div class="container">
+      <nav class="navbar navbar-expand-lg custom_nav-container">
+        <a class="navbar-brand" href="index.html">
+          <span>Resto</span>
+        </a>
+        <!-- ... rest of the navigation ... -->
+      </nav>
+    </div>
+  </header>
+
+  <!-- Cart section -->
+  <section class="cart-container">
+    <div class="container">
+      <div class="heading_container heading_center">
+        <h2>Your Cart</h2>
+      </div>
+      
+      <div class="cart-table">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Product</th>
+              <th>Name</th>
+              <th>Price</th>
+              <th>Quantity</th>
+              <th>Total</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><img src="images/f1.png" class="cart-img" alt="food"></td>
+              <td>Delicious Pizza</td>
+              <td>$15.00</td>
+              <td><input type="number" class="quantity-input" value="1" min="1"></td>
+              <td>$15.00</td>
+              <td><i class="fa fa-trash remove-btn"></i></td>
+            </tr>
+            <tr>
+              <td><img src="images/f2.png" class="cart-img" alt="food"></td>
+              <td>Tasty Burger</td>
+              <td>$12.00</td>
+              <td><input type="number" class="quantity-input" value="1" min="1"></td>
+              <td>$12.00</td>
+              <td><i class="fa fa-trash remove-btn"></i></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="cart-summary">
+        <div class="row">
+          <div class="col-md-6 offset-md-6">
+            <h4>Cart Summary</h4>
+            <div class="d-flex justify-content-between mt-3">
+              <span>Subtotal:</span>
+              <span>$27.00</span>
+            </div>
+            <div class="d-flex justify-content-between mt-2">
+              <span>Tax:</span>
+              <span>$2.70</span>
+            </div>
+            <div class="d-flex justify-content-between mt-2">
+              <span>Delivery:</span>
+              <span>$5.00</span>
+            </div>
+            <hr style="border-color: #333;">
+            <div class="d-flex justify-content-between mt-2">
+              <strong>Total:</strong>
+              <strong>$34.70</strong>
+            </div>
+            <div class="text-center">
+              <button class="checkout-btn">Proceed to Checkout</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer section (same as index.html) -->
+  <footer class="footer_section">
+    <!-- ... footer content ... -->
+  </footer>
+
+  <!-- Same scripts as index.html -->
+  <script src="js/jquery-3.4.1.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script>
+  <script src="js/bootstrap.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/owl.carousel.min.js"></script>
+  <script src="js/custom.js"></script>
+</body>
+
+</html>

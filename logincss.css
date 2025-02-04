@@ -1,0 +1,60 @@
+/* Auth Modal Styles */
+.modal-content {
+    border-radius: 15px;
+    background: #ffffff;
+  }
+  
+  .modal-header {
+    border-bottom: none;
+    padding: 20px 30px;
+  }
+  
+  .modal-title {
+    color: #222831;
+    font-weight: bold;
+    font-size: 24px;
+  }
+  
+  .nav-tabs {
+    border-bottom: 2px solid #ffbe33;
+    padding: 0 30px;
+  }
+  
+  .nav-tabs .nav-link {
+    color: #222831;
+    border: none;
+    padding: 10px 20px;
+    font-weight: 500;
+  }
+  
+  .nav-tabs .nav-link.active {
+    color: #ffbe33;
+    background: none;
+    border-bottom: 2px solid #ffbe33;
+  }
+  
+  .auth-form {
+    padding: 30px;
+  }
+  
+  .auth-form .form-control {
+    border-radius: 8px;
+    padding: 12px 15px;
+    margin-bottom: 15px;
+    border: 1px solid #ddd;
+  }
+  
+  .auth-form .btn1 {
+    margin-top: 10px;
+  }
+  
+  .forgot-password {
+    color: #ffbe33;
+    text-decoration: none;
+    font-size: 14px;
+  }
+  
+  .forgot-password:hover {
+    color: #222831;
+    text-decoration: none;
+  }

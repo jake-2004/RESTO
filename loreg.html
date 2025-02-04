@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+  <title>Resto - Login</title>
+  
+  <!-- bootstrap core css -->
+  <link rel="stylesheet" type="text/css" href="css/bootstrap.css" />
+  <!-- Custom styles -->
+  <link href="css/style.css" rel="stylesheet" />
+
+  <style>
+    .login_section {
+      min-height: 100vh;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .bg-box {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: -1;
+    }
+
+    .bg-box img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .login-container {
+      background: rgba(0, 0, 0, 0.7);
+      padding: 3rem;
+      border-radius: 15px;
+      text-align: center;
+      color: white;
+    }
+
+    .btn-login {
+      background-color: #ffbe33;
+      color: white;
+      padding: 12px 35px;
+      border-radius: 45px;
+      border: none;
+      margin: 10px;
+      transition: all 0.3s;
+    }
+
+    .btn-login:hover {
+      background-color: #e69c00;
+      color: white;
+    }
+  </style>
+</head>
+
+<body>
+  <section class="login_section">
+    <div class="bg-box">
+      <img src="images/indexpic.jpeg" alt="">
+    </div>
+    
+    <div class="login-container">
+      <h2 class="mb-4">Welcome to Resto</h2>
+      <div>
+        <a href="login.php" class="btn btn-login">Login</a>
+        <a href="registration.php" class="btn btn-login">Register</a>
+      </div>
+    </div>
+  </section>
+</body>
+</html>
