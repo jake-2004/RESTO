@@ -18,21 +18,48 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $email = mysqli_real_escape_string($conn, $_POST['email']);
     $password = mysqli_real_escape_string($conn, $_POST['password']);
     
-    $sql = "SELECT * FROM users WHERE email = '$email'";
+    // Debug information
+    error_log("Login attempt for email: " . $email);
+    
+    $sql = "SELECT * FROM login WHERE email = '$email'";
     $result = $conn->query($sql);
     
-    if ($result->num_rows > 0) {
+    if ($result === false) {
+        error_log("Query failed: " . $conn->error);
+        $error = "Database error occurred. Please try again later.";
+    } else if ($result->num_rows > 0) {
         $row = $result->fetch_assoc();
         if (password_verify($password, $row['password'])) {
             session_start();
-            $_SESSION['user_id'] = $row['id'];
+            $_SESSION['user_id'] = $row['user_id'];
             $_SESSION['email'] = $row['email'];
-            header("Location: user.html");
+            $_SESSION['role'] = $row['role'];
+            
+            error_log("Successful login for user: " . $row['email'] . " with role: " . $row['role']);
+            
+            // Redirect based on user role
+            switch($row['role']) {
+                case 'admin':
+                    header("Location: admin.php");
+                    break;
+                case 'staff':
+                    header("Location: staff.php");
+                    break;
+                case 'customer':
+                    header("Location: user.php");
+                    break;
+                default:
+                    error_log("Invalid role found: " . $row['role']);
+                    $error = "Invalid user role!";
+                    break;
+            }
             exit();
         } else {
+            error_log("Invalid password for user: " . $email);
             $error = "Invalid password!";
         }
     } else {
+        error_log("Email not found: " . $email);
         $error = "Email not found!";
     }
 }
@@ -252,6 +279,20 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 }
             });
         });
+    </script>
+
+    <script>
+        // Check if we came from user.php
+        if (sessionStorage.getItem('fromUserPage') === 'true') {
+            // Clear the flag
+            sessionStorage.removeItem('fromUserPage');
+            
+            // End the session
+            fetch('end_session.php', {
+                method: 'POST',
+                credentials: 'same-origin'
+            });
+        }
     </script>
 </body>
 </html>

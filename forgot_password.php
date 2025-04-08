@@ -1,181 +1,205 @@
 <?php
 session_start();
-// Database connection
-$servername = "localhost";
-$username = "root";
-$password = "";
-$dbname = "resto_db";
-
-// Create connection
-$conn = new mysqli($servername, $username, $password, $dbname);
-
-// Check connection
-if ($conn->connect_error) {
-    die("Connection failed: " . $conn->connect_error);
-}
+$error_message = '';
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    if (isset($_POST['email'])) {
-        $email = mysqli_real_escape_string($conn, $_POST['email']);
+   
+    $conn = new mysqli('localhost', 'root', '', 'resto_db');
         
-        // Check if email exists
-        $sql = "SELECT * FROM users WHERE email = '$email'";
+    if ($conn->connect_error) {
+        error_log("Connection failed: " . $conn->connect_error);
+        $error_message = "An error occurred during login. Please try again later.";
+    } else {
+        
+        $email = $conn->real_escape_string(filter_var($_POST['email'], FILTER_SANITIZE_EMAIL)); 
+        $sql = "SELECT * FROM users WHERE email='$email'";
+        
         $result = $conn->query($sql);
         
-        if ($result->num_rows > 0) {
-            // Generate OTP
-            $otp = sprintf("%06d", mt_rand(0, 999999));
-            $expiry = date('Y-m-d H:i:s', strtotime('+15 minutes'));
-            
-            // Store OTP in database
-            $updateSql = "UPDATE users SET reset_token = '$otp', token_expiry = '$expiry' WHERE email = '$email'";
-            if ($conn->query($updateSql)) {
-                // Send OTP email using PHP mailer configuration
-                $to = $email;
-                $subject = "Password Reset OTP";
-                $message = "Hello,\n\nYour OTP for password reset is: $otp\n\nThis OTP will expire in 15 minutes.\n\nIf you didn't request this, please ignore this email.";
-                $headers = "From: your-configured-email@domain.com\r\n"; // Update this with your configured email
-                $headers .= "Reply-To: your-configured-email@domain.com\r\n"; // Add reply-to header
-                $headers .= "X-Mailer: PHP/" . phpversion() . "\r\n"; // Add mailer header
-                $headers .= "MIME-Version: 1.0\r\n";
-                $headers .= "Content-Type: text/plain; charset=UTF-8\r\n";
-                
-                try {
-                    // Remove @ symbol to see errors during development
-                    if(mail($to, $subject, $message, $headers)) {
-                        $_SESSION['reset_email'] = $email;
-                        header("Location: verify_otp.php");
-                        exit();
-                    } else {
-                        // More detailed error logging
-                        $mail_error = error_get_last()['message'];
-                        error_log("Failed to send email to: " . $email . ". Error: " . $mail_error);
-                        $error = "Error sending email. Please try again later.";
-                        
-                        // Rollback the OTP update since email failed
-                        $rollbackSql = "UPDATE users SET reset_token = NULL, token_expiry = NULL WHERE email = '$email'";
-                        $conn->query($rollbackSql);
-                    }
-                } catch (Exception $e) {
-                    error_log("Mail exception: " . $e->getMessage());
-                    $error = "System error while sending email. Please try again later.";
-                    
-                    // Rollback the OTP update
-                    $rollbackSql = "UPDATE users SET reset_token = NULL, token_expiry = NULL WHERE email = '$email'";
-                    $conn->query($rollbackSql);
-                }
-            } else {
-                $error = "Error processing request. Please try again.";
-            }
+        if ($result && $result->num_rows === 1) {
+            $user = $result->fetch_assoc();
+            echo'<form id="form" method="POST" action="verify_otp.php">';
+            echo '<input type="hidden" name="email" value="' . $email . '">';
+            echo'</form>';
+            echo'<script>document.getElementById("form").submit();</script>';
+
         } else {
-            $error = "Email address not found.";
+            $error_message = "Invalid email";
         }
+        
+               $conn->close();
     }
 }
 ?>
-
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
-    <title>Forgot Password - Resto</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resto - Forgot Password</title>
+    <!-- bootstrap core css -->
     <link rel="stylesheet" type="text/css" href="css/bootstrap.css" />
+    <!-- font awesome style -->
     <link href="css/font-awesome.min.css" rel="stylesheet" />
-    <link href="css/style.css" rel="stylesheet" />
-    
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
-    .forgot_password_section {
-        background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url('images/indexpic.jpeg');
-        background-size: cover;
-        background-position: center;
-        min-height: 100vh;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: url('images/indexpic.jpeg') no-repeat center center fixed;
+            background-size: cover;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 2rem;
+            position: relative;
+        }
 
-    .forgot_password_container {
-        background: rgba(255, 255, 255, 0.95);
-        padding: 40px;
-        border-radius: 15px;
-        box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
-        max-width: 400px;
-        width: 90%;
-    }
+        body::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 1;
+        }
 
-    .forgot_password_heading {
-        text-align: center;
-        margin-bottom: 30px;
-        color: #222831;
-    }
+        .login-container {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 3rem;
+            border-radius: 15px;
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
+            width: 100%;
+            max-width: 450px;
+            animation: slideUp 0.5s ease-out;
+            position: relative;
+            z-index: 2;
+        }
 
-    .form-control {
-        height: 45px;
-        margin-bottom: 20px;
-    }
+        .logo {
+            text-align: center;
+            margin-bottom: 2rem;
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #ffbe33;
+        }
 
-    .submit_btn {
-        background-color: #ffbe33;
-        color: white;
-        padding: 12px 30px;
-        border: none;
-        border-radius: 8px;
-        width: 100%;
-        font-weight: 600;
-        text-transform: uppercase;
-        transition: all 0.3s ease;
-    }
+        h2 {
+            text-align: center;
+            color: #222831;
+            margin-bottom: 1rem;
+            font-weight: 600;
+        }
 
-    .submit_btn:hover {
-        background-color: #e69c00;
-    }
+        p.description {
+            text-align: center;
+            color: #666;
+            margin-bottom: 2rem;
+        }
 
-    .back_link {
-        text-align: center;
-        margin-top: 20px;
-    }
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
 
-    .back_link a {
-        color: #ffbe33;
-        text-decoration: none;
-    }
+        .form-group input {
+            width: 100%;
+            padding: 0.8rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
 
-    .back_link a:hover {
-        color: #e69c00;
-    }
+        .form-group input:focus {
+            outline: none;
+            border-color: #ffbe33;
+            box-shadow: 0 0 0 3px rgba(255, 190, 51, 0.1);
+        }
+
+        .login-btn {
+            width: 100%;
+            padding: 1rem;
+            background: #ffbe33;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .login-btn:hover {
+            background: #e69c00;
+            transform: translateY(-2px);
+        }
+
+        .back-to-login {
+            text-align: center;
+            margin-top: 1.5rem;
+            color: #666;
+        }
+
+        .back-to-login a {
+            color: #ffbe33;
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+
+        .back-to-login a:hover {
+            color: #e69c00;
+        }
+
+        .error-message {
+            background-color: rgba(220, 38, 38, 0.1);
+            color: #dc2626;
+            padding: 0.75rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
     </style>
 </head>
-
 <body>
-    <section class="forgot_password_section">
-        <div class="forgot_password_container">
-            <div class="forgot_password_heading">
-                <h2>Forgot Password</h2>
-                <p>Enter your email to receive OTP</p>
-            </div>
-
-            <?php if(isset($error)) { ?>
-                <div class="alert alert-danger" role="alert">
-                    <?php echo $error; ?>
-                </div>
-            <?php } ?>
-
-            <form method="POST" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>">
-                <div class="form-group">
-                    <input type="email" name="email" class="form-control" placeholder="Enter your email" required>
-                </div>
-                <button type="submit" class="submit_btn">Send OTP</button>
-            </form>
-
-            <div class="back_link">
-                <a href="help.php">Back to Login</a>
-            </div>
+    <div class="login-container">
+        <div class="logo">
+            Resto
         </div>
-    </section>
+        <h2>Forgot Password</h2>
+        <p class="description">Enter your email to receive an OTP</p>
+        
+        <?php if (!empty($error_message)): ?>
+            <div class="error-message">
+                <?php echo htmlspecialchars($error_message); ?>
+            </div>
+        <?php endif; ?>
+        
+        <form method="POST" action="<?php echo htmlspecialchars($_SERVER['PHP_SELF']); ?>">
+            <div class="form-group">
+                <input type="email" id="email" name="email" placeholder="Enter your email" required>
+            </div>
+            <button type="submit" class="login-btn">Send OTP</button>
+            <p class="back-to-login">Remember your password? <a href="login.php">Login here</a></p>
+        </form>
+    </div>
 
+    <!-- jQuery -->
     <script src="js/jquery-3.4.1.min.js"></script>
+    <!-- bootstrap js -->
     <script src="js/bootstrap.js"></script>
 </body>
 </html>
-<?php $conn->close(); ?> 

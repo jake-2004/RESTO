@@ -1,116 +1,239 @@
 <?php
-session_start();
-if (!isset($_SESSION['reset_email'])) {
-    header("Location: forgot_password.php");
-    exit();
+session_start(); 
+$error_message = '';
+
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\Exception;
+
+require 'PHPMailer-master/src/Exception.php';
+require 'PHPMailer-master/src/PHPMailer.php';
+require 'PHPMailer-master/src/SMTP.php';
+
+function generateVerificationCode($length = 6) {
+    return str_pad(random_int(0, pow(10, $length) - 1), $length, '0', STR_PAD_LEFT);
 }
 
-// Database connection
-$servername = "localhost";
-$username = "root";
-$password = "";
-$dbname = "resto_db";
+function sendVerificationEmail($recipientEmail, $verificationCode) {
+    $mail = new PHPMailer(true);
+    try {
+        $mail->isSMTP();
+        $mail->Host       = 'smtp.gmail.com';
+        $mail->SMTPAuth   = true;
+        $mail->Username   = 'resto4460@gmail.com';
+        $mail->Password   = 'dapf heao qmke hrbd';
+        $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
+        $mail->Port       = 587;
 
-$conn = new mysqli($servername, $username, $password, $dbname);
+        $mail->setFrom('resto4460@gmail.com', 'Resto');
+        $mail->addAddress($recipientEmail);
+        $mail->Subject = 'Your Verification Code';
+        $mail->Body    = "Your verification code is: $verificationCode\n\nThis code will expire in 10 minutes.";
 
-if ($conn->connect_error) {
-    die("Connection failed: " . $conn->connect_error);
+        $mail->send();
+        return true;
+    } catch (Exception $e) {
+        error_log("Email sending failed: " . $mail->ErrorInfo);
+        return false;
+    }
 }
 
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    if (isset($_POST['otp'])) {
-        $otp = mysqli_real_escape_string($conn, $_POST['otp']);
-        $email = $_SESSION['reset_email'];
-        
-        $sql = "SELECT * FROM users WHERE email = '$email' AND reset_token = '$otp' AND token_expiry > NOW()";
-        $result = $conn->query($sql);
-        
-        if ($result->num_rows > 0) {
-            $_SESSION['otp_verified'] = true;
-            header("Location: update_password.php");
-            exit();
+if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    if (isset($_POST['email'])) {
+        $email = $_POST['email'];
+        $verificationCode = generateVerificationCode();
+        $_SESSION['verification_code'] = $verificationCode;
+        $_SESSION['email'] = $email;
+
+        if (sendVerificationEmail($email, $verificationCode)) {
+            echo"";
         } else {
-            $error = "Invalid or expired OTP.";
+            $error_message= "Failed to send verification code.";
+        }
+    } elseif (isset($_POST['verify'])) {
+        $enteredOTP = $_POST['otp1'] . $_POST['otp2'] . $_POST['otp3'] . $_POST['otp4'] . $_POST['otp5'] . $_POST['otp6'];
+        if ($enteredOTP == $_SESSION['verification_code']) {
+            header('Location: reset_password.php');
+            unset($_SESSION['verification_code']);  
+        } else {
+            $error_message="Incorrect OTP.";
         }
     }
 }
 ?>
 
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
-    <title>Verify OTP - Resto</title>
-    <link rel="stylesheet" type="text/css" href="css/bootstrap.css" />
-    <link href="css/font-awesome.min.css" rel="stylesheet" />
-    <link href="css/style.css" rel="stylesheet" />
-    
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resto - OTP Verification</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
-    .verify_otp_section {
-        background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url('images/indexpic.jpeg');
-        background-size: cover;
-        background-position: center;
-        min-height: 100vh;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
 
-    .verify_otp_container {
-        background: rgba(255, 255, 255, 0.95);
-        padding: 40px;
-        border-radius: 15px;
-        box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
-        max-width: 400px;
-        width: 90%;
-    }
+        body {
+            background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url('images/indexpic.jpeg');
+            background-size: cover;
+            background-position: center;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 2rem;
+        }
 
-    .verify_otp_heading {
-        text-align: center;
-        margin-bottom: 30px;
-        color: #222831;
-    }
+        .login-container {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+            width: 100%;
+            max-width: 400px;
+            animation: slideUp 0.5s ease-out;
+        }
 
-    .otp-input {
-        letter-spacing: 20px;
-        text-align: center;
-        font-size: 24px;
-    }
+        .logo {
+            text-align: center;
+            margin-bottom: 2rem;
+            font-size: 2rem;
+            font-weight: 700;
+        }
+
+        .task { color: #2563eb; }
+        .mate { color: #3b82f6; }
+
+        h2 {
+            text-align: center;
+            color: #1e293b;
+            margin-bottom: 2rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #64748b;
+            font-size: 0.9rem;
+        }
+
+        .otp-inputs {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .otp-inputs input {
+            width: 3rem;
+            height: 3rem;
+            text-align: center;
+            font-size: 1.5rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .otp-inputs input:focus {
+            outline: none;
+            border-color: #2563eb;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        .login-btn {
+            width: 100%;
+            padding: 12px 30px;
+            background-color: #ffbe33;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .login-btn:hover {
+            background-color: #e69c00;
+            transform: translateY(-2px);
+        }
+
+        .resend-text {
+            text-align: center;
+            margin-top: 1.5rem;
+            color: #64748b;
+        }
+
+        .resend-text a {
+            color: #2563eb;
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+
+        .resend-text a:hover {
+            color: #1d4ed8;
+        }
+        .error-message {
+            background-color: #fee2e2;
+            color: #dc2626;
+            padding: 0.75rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
     </style>
 </head>
-
 <body>
-    <section class="verify_otp_section">
-        <div class="verify_otp_container">
-            <div class="verify_otp_heading">
-                <h2>Verify OTP</h2>
-                <p>Enter the OTP sent to your email</p>
-            </div>
-
-            <?php if(isset($error)) { ?>
-                <div class="alert alert-danger" role="alert">
-                    <?php echo $error; ?>
-                </div>
-            <?php } ?>
-
-            <form method="POST" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>">
-                <div class="form-group">
-                    <input type="text" name="otp" class="form-control otp-input" 
-                           maxlength="6" placeholder="Enter OTP" required 
-                           pattern="[0-9]{6}" title="Please enter 6 digits">
-                </div>
-                <button type="submit" class="submit_btn">Verify OTP</button>
-            </form>
-
-            <div class="back_link">
-                <a href="forgot_password.php">Resend OTP</a>
-            </div>
+    <div class="login-container">
+        <div class="logo">
+            <span class="Resto">Resto</span><span class=""></span>
         </div>
-    </section>
+        <h2>OTP Verification</h2>
+        <?php if (!empty($error_message)): ?>
+            <div class="error-message">
+                <?php echo htmlspecialchars($error_message); ?>
+            </div>
+        <?php endif; ?>
+        <p style="text-align: center; color: #64748b; margin-bottom: 1.5rem;">Enter the 6-digit code sent to your email.</p>
+        <form method="POST" action="<?php echo htmlspecialchars($_SERVER['PHP_SELF']); ?>">
+            <div class="form-group otp-inputs">
+                <input type="text" maxlength="1" required oninput="moveToNext(this, 'otp2')" id="otp1" name="otp1">
+                <input type="text" maxlength="1" required oninput="moveToNext(this, 'otp3')" id="otp2" name="otp2">
+                <input type="text" maxlength="1" required oninput="moveToNext(this, 'otp4')" id="otp3" name="otp3">
+                <input type="text" maxlength="1" required oninput="moveToNext(this, 'otp5')" id="otp4" name="otp4">
+                <input type="text" maxlength="1" required oninput="moveToNext(this, 'otp6')" id="otp5" name="otp5">
+                <input type="text" maxlength="1" required id="otp6" name="otp6">
+            </div>
+            <button type="submit" class="login-btn" name="verify">Verify OTP</button>
+            
+        </form>
+    </div>
 
-    <script src="js/jquery-3.4.1.min.js"></script>
-    <script src="js/bootstrap.js"></script>
+    <script>
+        function moveToNext(current, nextFieldID) {
+            if (current.value.length === 1) {
+                document.getElementById(nextFieldID)?.focus();
+            }
+        }
+    </script>
 </body>
 </html>
-<?php $conn->close(); ?> 

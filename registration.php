@@ -15,7 +15,7 @@ if ($conn->connect_error) {
 
 // Handle form submission
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $fullname = mysqli_real_escape_string($conn, $_POST['fullname']);
+    $user_name = mysqli_real_escape_string($conn, $_POST['user_name']);
     $email = mysqli_real_escape_string($conn, $_POST['email']);
     $phone = mysqli_real_escape_string($conn, $_POST['phone']);
     $password = $_POST['password'];
@@ -44,18 +44,29 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         if ($result->num_rows > 0) {
             $error = "Email already exists!";
         } else {
-            // Insert user into database
-            $sql = "INSERT INTO users (fullname, email, phone, password) VALUES ('$fullname', '$email', '$phone', '$hashed_password')";
-            
+            // Insert user into the database
+            $sql = "INSERT INTO users (user_name, email, phone, password) VALUES ('$user_name', '$email', '$phone', '$hashed_password')";
+        
             if ($conn->query($sql) === TRUE) {
-                header("Location: login.php?registration=success");
-                exit();
+                // Get the user_id of the newly inserted user
+                $user_id = $conn->insert_id;
+        
+                // Insert into the login table with the user_id
+                $sql2 = "INSERT INTO login (user_id, email, password) VALUES ('$user_id', '$email', '$hashed_password')";
+        
+                if ($conn->query($sql2) === TRUE) {
+                    header("Location: login.php?registration=success");
+                    exit();
+                } else {
+                    $error = "Error: " . $sql2 . "<br>" . $conn->error;
+                }
+        
             } else {
                 $error = "Error: " . $sql . "<br>" . $conn->error;
             }
         }
-    }
-}
+        
+}}
 ?>
 
 <!DOCTYPE html>
@@ -198,8 +209,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             
             <form class="login_form" method="POST" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" id="registrationForm">
                 <div class="form-group">
-                    <input type="text" name="fullname" class="form-control" placeholder="Full Name" required>
-                    <div class="error-message" id="fullnameError">Please enter a valid name (minimum 2 characters)</div>
+                    <input type="text" name="user_name" class="form-control" placeholder="Username" required>
+                    <div class="error-message" id="user_nameError">Please enter a valid username (minimum 2 characters)</div>
                 </div>
                 <div class="form-group">
                     <input type="email" name="email" class="form-control" placeholder="Email Address" required>
@@ -240,9 +251,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         const submitBtn = document.getElementById('submitBtn');
         
         const validators = {
-            fullname: (value) => value.length >= 2,
+            user_name: (value) => value.length >= 2,
             email: (value) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value),
-            phone: (value) => /^\d{10}$/.test(value.replace(/[^0-9]/g, '')),
+            phone: (value) => /^[6-9]\d{9}$/.test(value.replace(/[^0-9]/g, '')),
             password: (value) => {
                 const hasUpperCase = /[A-Z]/.test(value);
                 const hasLowerCase = /[a-z]/.test(value);

@@ -33,21 +33,56 @@
       padding: 80px 0;
     }
 
+    .heading_container h2 {
+      color: #ffffff;
+      font-size: 2.5rem;
+      margin-bottom: 35px;
+      position: relative;
+    }
+
+    .heading_container h2::after {
+      content: '';
+      position: absolute;
+      bottom: -15px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 60px;
+      height: 3px;
+      background: #ffbe33;
+    }
+
     .cart-table {
-      background-color: #1a1a1a;
+      background-color: rgba(26, 26, 26, 0.95);
       border-radius: 15px;
       padding: 20px;
+      backdrop-filter: blur(10px);
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
     }
 
     .cart-table th {
       color: #ffbe33;
       border-bottom: 1px solid #333;
+      font-size: 1.1em;
+      font-weight: 600;
+      padding: 15px;
     }
 
     .cart-table td {
       color: #ffffff;
       border-bottom: 1px solid #333;
       vertical-align: middle;
+      padding: 15px;
+      font-size: 1em;
+    }
+
+    .cart-table td:nth-child(2) {
+      font-weight: 500;
+      color: #ffbe33;
+    }
+
+    .cart-table td:nth-child(3),
+    .cart-table td:nth-child(5) {
+      color: #ffd584;
     }
 
     .cart-img {
@@ -55,44 +90,111 @@
       height: 80px;
       object-fit: cover;
       border-radius: 8px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+      transition: transform 0.3s ease;
+    }
+
+    .cart-img:hover {
+      transform: scale(1.1);
     }
 
     .quantity-input {
-      width: 60px;
-      background-color: #333;
-      border: none;
+      width: 70px;
+      background-color: rgba(255, 255, 255, 0.1);
+      border: 1px solid #ffbe33;
       color: white;
-      padding: 5px;
+      padding: 8px;
       text-align: center;
-      border-radius: 5px;
+      border-radius: 8px;
+      font-size: 0.9em;
+      transition: all 0.3s ease;
+    }
+
+    .quantity-input:focus {
+      outline: none;
+      border-color: #ffd584;
+      background-color: rgba(255, 255, 255, 0.15);
     }
 
     .remove-btn {
       color: #ff4444;
       cursor: pointer;
+      font-size: 1.2em;
+      padding: 8px;
+      border-radius: 50%;
+      transition: all 0.3s ease;
+    }
+
+    .remove-btn:hover {
+      background-color: rgba(255, 68, 68, 0.1);
+      transform: scale(1.1);
     }
 
     .cart-summary {
-      background-color: #1a1a1a;
+      background-color: rgba(26, 26, 26, 0.95);
       border-radius: 15px;
-      padding: 20px;
-      margin-top: 20px;
+      padding: 25px;
+      margin-top: 30px;
+      backdrop-filter: blur(10px);
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    }
+
+    .cart-summary h4 {
+      color: #ffbe33;
+      font-size: 1.5em;
+      margin-bottom: 20px;
+      padding-bottom: 10px;
+      border-bottom: 2px solid rgba(255, 190, 51, 0.3);
+    }
+
+    .cart-summary .d-flex {
+      padding: 10px 0;
+      color: #ffffff;
+      font-size: 1.1em;
+    }
+
+    .cart-summary .d-flex span:last-child {
+      color: #ffd584;
+      font-weight: 500;
+    }
+
+    .cart-summary hr {
+      border-color: rgba(255, 190, 51, 0.3);
+      margin: 15px 0;
+    }
+
+    .cart-summary strong {
+      color: #ffbe33;
+      font-size: 1.2em;
     }
 
     .checkout-btn {
-      background-color: #ffbe33;
+      background: linear-gradient(45deg, #ffbe33, #ff9900);
       color: #000000;
-      padding: 10px 30px;
+      padding: 12px 35px;
       border: none;
-      border-radius: 25px;
-      font-weight: bold;
+      border-radius: 30px;
+      font-weight: 600;
+      font-size: 1.1em;
       margin-top: 20px;
-      transition: all 0.3s;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 15px rgba(255, 190, 51, 0.3);
+      text-transform: uppercase;
+      letter-spacing: 1px;
     }
 
     .checkout-btn:hover {
-      background-color: #e69c00;
-      color: #000000;
+      background: linear-gradient(45deg, #ff9900, #ffbe33);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(255, 190, 51, 0.4);
+    }
+
+    .navbar-brand {
+      color: #ffffff !important;
+    }
+
+    .custom_nav-container {
+      padding: 15px 0;
     }
   </style>
 </head>

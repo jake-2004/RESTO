@@ -1,11 +1,12 @@
 // to get current year
 function getYear() {
-    var currentDate = new Date();
-    var currentYear = currentDate.getFullYear();
-    document.querySelector("#displayYear").innerHTML = currentYear;
+    var yearElement = document.querySelector('.current_year');
+    if (yearElement) {  // Only set if element exists
+        yearElement.innerHTML = new Date().getFullYear();
+    }
 }
 
-getYear();
+window.addEventListener('load', getYear);
 
 
 // isotope js
@@ -31,8 +32,12 @@ $(window).on('load', function () {
 
 // nice select
 $(document).ready(function() {
+    // Initialize nice select
     $('select').niceSelect();
-  });
+
+    // Initialize Bootstrap dropdowns
+    $('.dropdown-toggle').dropdown();
+});
 
 /** google_map js **/
 function myMap() {
@@ -43,28 +48,55 @@ function myMap() {
     var map = new google.maps.Map(document.getElementById("googleMap"), mapProp);
 }
 
-// client section owl carousel
-$(".client_owl-carousel").owlCarousel({
-    loop: true,
-    margin: 0,
-    dots: false,
-    nav: true,
-    navText: [],
-    autoplay: true,
-    autoplayHoverPause: true,
-    navText: [
-        '<i class="fa fa-angle-left" aria-hidden="true"></i>',
-        '<i class="fa fa-angle-right" aria-hidden="true"></i>'
-    ],
-    responsive: {
-        0: {
-            items: 1
-        },
-        768: {
-            items: 2
-        },
-        1000: {
-            items: 2
+// Initialize review carousel when document is ready
+$(document).ready(function() {
+    // Wait for reviews to be loaded
+    setTimeout(function() {
+        var $carousel = $(".client_owl-carousel");
+        var reviewCount = $carousel.find('.item').length;
+
+        // Destroy existing carousel if it exists
+        if ($carousel.hasClass('owl-loaded')) {
+            $carousel.trigger('destroy.owl.carousel');
         }
-    }
+
+        // Initialize carousel with proper configuration
+        $carousel.owlCarousel({
+            loop: reviewCount > 1,
+            margin: 20,
+            dots: true,
+            nav: false,
+            autoplay: reviewCount > 1,
+            autoplayTimeout: 5000,
+            autoplayHoverPause: true,
+            responsive: {
+                0: {
+                    items: 1
+                },
+                768: {
+                    items: reviewCount > 1 ? 2 : 1
+                },
+                1000: {
+                    items: reviewCount > 1 ? 2 : 1
+                }
+            }
+        });
+
+        // Add manual navigation if there are multiple reviews
+        if (reviewCount > 1) {
+            // Handle navigation button clicks
+            $('.prev-review').click(function() {
+                $carousel.trigger('prev.owl.carousel');
+            });
+
+            $('.next-review').click(function() {
+                $carousel.trigger('next.owl.carousel');
+            });
+        }
+
+        // Force refresh after initialization
+        setTimeout(function() {
+            $carousel.trigger('refresh.owl.carousel');
+        }, 100);
+    }, 500); // Wait for reviews to be loaded
 });
